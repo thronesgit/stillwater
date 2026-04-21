@@ -211,17 +211,6 @@
   }
   #message.visible { opacity: 1; }
 
-  #msg-num {
-    margin-top: 1.2rem;
-    font-family: 'Jost', sans-serif;
-    font-weight: 200;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: rgba(180,141,224,0.35);
-    opacity: 0;
-    animation: fadeUp 2s ease 1s forwards;
-  }
-
   /* Divider */
   .divider {
     width: 60px; height: 1px;
@@ -234,7 +223,7 @@
   /* ── BOX BREATHING ── */
   #breathing {
     display: flex; flex-direction: column;
-    align-items: center; gap: 1rem;
+    align-items: center; gap: 0.85rem;
     opacity: 0;
     animation: fadeUp 2s ease 1.2s forwards;
   }
@@ -249,67 +238,41 @@
   #breath-phase {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 0.95rem;
-    color: rgba(232,196,216,0.8);
+    font-size: 1rem;
+    color: rgba(232,196,216,0.9);
     letter-spacing: 0.05em;
-    min-height: 1.2rem;
-    transition: opacity 0.4s ease;
+    min-height: 1.3rem;
+    transition: opacity 0.3s ease;
   }
 
-  #box-container {
+  /* SVG ring container */
+  #ring-wrap {
     position: relative;
-    width: 100px; height: 100px;
+    width: 120px; height: 120px;
   }
-  #box-bg {
-    position: absolute; inset: 0;
-    border-radius: 16px;
-    background: rgba(45,27,94,0.2);
-    border: 1px solid rgba(180,141,224,0.1);
+  #ring-svg {
+    width: 120px; height: 120px;
+    transform: rotate(-90deg);
   }
-  /* The animated fill */
-  #box-fill {
-    position: absolute; inset: 0;
-    border-radius: 16px;
-    background: radial-gradient(circle at center, rgba(139,95,196,0.35), rgba(92,52,144,0.15));
-    transform: scale(0);
-    transition: transform 4s linear, opacity 0.5s ease;
-    opacity: 0;
-  }
-  /* The corner dot that travels the perimeter */
-  #dot {
+
+  /* Center dot / pulse */
+  #center-dot {
     position: absolute;
-    width: 10px; height: 10px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 18px; height: 18px;
     border-radius: 50%;
-    background: rgba(232,196,216,0.9);
-    box-shadow: 0 0 12px rgba(232,196,216,0.6), 0 0 24px rgba(180,141,224,0.4);
-    top: -5px; left: -5px;
-    animation: boxDot 16s linear infinite;
+    background: radial-gradient(circle, rgba(232,196,216,0.95) 40%, rgba(180,141,224,0.5) 100%);
+    box-shadow: 0 0 10px rgba(232,196,216,0.5), 0 0 22px rgba(139,95,196,0.35);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
   }
-  /* Box border that traces */
-  svg#box-trace {
-    position: absolute; inset: -1px;
-    width: calc(100% + 2px); height: calc(100% + 2px);
-    overflow: visible;
+  #center-dot.inhale {
+    transform: translate(-50%, -50%) scale(1.4);
+    box-shadow: 0 0 16px rgba(232,196,216,0.75), 0 0 38px rgba(139,95,196,0.55);
   }
-  #trace-path {
-    fill: none;
-    stroke: url(#traceGrad);
-    stroke-width: 1.5;
-    stroke-dasharray: 392;
-    stroke-dashoffset: 392;
-    animation: traceDraw 16s linear infinite;
-    stroke-linecap: round;
-  }
-  @keyframes traceDraw {
-    0% { stroke-dashoffset: 392; }
-    100% { stroke-dashoffset: 0; }
-  }
-  @keyframes boxDot {
-    0%   { top: -5px; left: -5px; }
-    25%  { top: -5px; left: calc(100% - 5px); }
-    50%  { top: calc(100% - 5px); left: calc(100% - 5px); }
-    75%  { top: calc(100% - 5px); left: -5px; }
-    100% { top: -5px; left: -5px; }
+  #center-dot.exhale {
+    transform: translate(-50%, -50%) scale(0.68);
+    box-shadow: 0 0 5px rgba(232,196,216,0.25), 0 0 10px rgba(139,95,196,0.15);
   }
 
   /* Next button */
@@ -365,7 +328,7 @@
 
   <div id="card">
     <p id="message"></p>
-    <div id="msg-num"></div>
+
   </div>
 
   <div class="divider"></div>
@@ -374,19 +337,44 @@
   <div id="breathing">
     <div id="breath-label">box breathing</div>
     <div id="breath-phase">breathe in</div>
-    <div id="box-container">
-      <div id="box-bg"></div>
-      <div id="box-fill"></div>
-      <svg id="box-trace" viewBox="-1 -1 102 102">
+    <div id="ring-wrap">
+      <svg id="ring-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="traceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="rgba(232,196,216,0.8)"/>
-            <stop offset="100%" stop-color="rgba(139,95,196,0.4)"/>
+          <linearGradient id="seg0grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="rgba(232,196,216,0.9)"/>
+            <stop offset="100%" stop-color="rgba(180,141,224,0.6)"/>
+          </linearGradient>
+          <linearGradient id="seg1grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="rgba(180,141,224,0.9)"/>
+            <stop offset="100%" stop-color="rgba(139,95,196,0.6)"/>
+          </linearGradient>
+          <linearGradient id="seg2grad" x1="1" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="rgba(232,196,216,0.9)"/>
+            <stop offset="100%" stop-color="rgba(180,141,224,0.6)"/>
+          </linearGradient>
+          <linearGradient id="seg3grad" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(180,141,224,0.9)"/>
+            <stop offset="100%" stop-color="rgba(139,95,196,0.6)"/>
           </linearGradient>
         </defs>
-        <rect x="0" y="0" width="100" height="100" rx="15" id="trace-path"/>
+        <!-- Track ring -->
+        <circle cx="60" cy="60" r="50" stroke="rgba(180,141,224,0.1)" stroke-width="6" fill="none"/>
+        <!-- 4 quarter-arc segments, each = 25% of circumference = ~78.5px of 314px -->
+        <!-- gap between segments: 3px each side -->
+        <circle id="seg0" cx="60" cy="60" r="50" stroke="url(#seg0grad)" stroke-width="6" fill="none"
+          stroke-dasharray="72.5 241.5" stroke-dashoffset="0" stroke-linecap="round" opacity="0.25"/>
+        <circle id="seg1" cx="60" cy="60" r="50" stroke="url(#seg1grad)" stroke-width="6" fill="none"
+          stroke-dasharray="72.5 241.5" stroke-dashoffset="-78.5" stroke-linecap="round" opacity="0.25"/>
+        <circle id="seg2" cx="60" cy="60" r="50" stroke="url(#seg2grad)" stroke-width="6" fill="none"
+          stroke-dasharray="72.5 241.5" stroke-dashoffset="-157" stroke-linecap="round" opacity="0.25"/>
+        <circle id="seg3" cx="60" cy="60" r="50" stroke="url(#seg3grad)" stroke-width="6" fill="none"
+          stroke-dasharray="72.5 241.5" stroke-dashoffset="-235.5" stroke-linecap="round" opacity="0.25"/>
+        <!-- Progress arc overlay — JS driven -->
+        <circle id="progress-arc" cx="60" cy="60" r="50" stroke="rgba(232,196,216,0.85)" stroke-width="2.5"
+          fill="none" stroke-linecap="round"
+          stroke-dasharray="314" stroke-dashoffset="314"/>
       </svg>
-      <div id="dot"></div>
+      <div id="center-dot"></div>
     </div>
   </div>
 
@@ -414,23 +402,93 @@
   }
 })();
 
-// ── BOX BREATHING PHASE LABELS ──
+// ── BOX BREATHING — SEGMENTED RING ──
 (function() {
-  const phases = ['breathe in', 'hold', 'breathe out', 'hold'];
-  const durations = [4000, 4000, 4000, 4000];
-  let idx = 0;
-  const label = document.getElementById('breath-phase');
-  function nextPhase() {
-    label.style.opacity = '0';
+  const CIRCUMFERENCE = 314; // 2π × 50
+  const SEG_FULL = 78.5;     // one quarter
+  const PHASE_DUR = 4000;    // 4s each phase
+
+  const phases = [
+    { label: 'breathe in',  dot: 'inhale', segStart: 0,    segEnd: 1   },
+    { label: 'hold',        dot: '',       segStart: 1,    segEnd: 2   },
+    { label: 'breathe out', dot: 'exhale', segStart: 2,    segEnd: 3   },
+    { label: 'hold',        dot: '',       segStart: 3,    segEnd: 4   },
+  ];
+
+  const segs = [
+    document.getElementById('seg0'),
+    document.getElementById('seg1'),
+    document.getElementById('seg2'),
+    document.getElementById('seg3'),
+  ];
+  const progressArc = document.getElementById('progress-arc');
+  const phaseLabel  = document.getElementById('breath-phase');
+  const centerDot   = document.getElementById('center-dot');
+
+  let phaseIdx = 0;
+  let startTime = null;
+  let raf = null;
+
+  function setLabel(p) {
+    phaseLabel.style.opacity = '0';
     setTimeout(() => {
-      idx = (idx + 1) % phases.length;
-      label.textContent = phases[idx];
-      label.style.opacity = '1';
-    }, 300);
-    setTimeout(nextPhase, durations[idx]);
+      phaseLabel.textContent = p.label;
+      phaseLabel.style.opacity = '1';
+    }, 200);
+
+    centerDot.className = '';
+    if (p.dot) {
+      setTimeout(() => centerDot.classList.add(p.dot), 220);
+    }
   }
-  label.textContent = phases[0];
-  setTimeout(nextPhase, durations[0]);
+
+  function setSegmentActive(idx) {
+    segs.forEach((s, i) => {
+      s.style.transition = 'opacity 0.4s ease';
+      s.style.opacity = i === idx ? '1' : '0.18';
+    });
+  }
+
+  function animate(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+    const t = Math.min(elapsed / PHASE_DUR, 1); // 0→1
+
+    const p = phases[phaseIdx];
+    // progress arc: covers from segStart×quarter to segStart×quarter + t×quarter
+    const arcFill = (p.segStart + t) * SEG_FULL;
+    progressArc.style.strokeDashoffset = CIRCUMFERENCE - arcFill;
+
+    if (t < 1) {
+      raf = requestAnimationFrame(animate);
+    } else {
+      // Complete this segment, move to next
+      progressArc.style.strokeDashoffset = CIRCUMFERENCE - (p.segEnd * SEG_FULL);
+      setTimeout(() => {
+        phaseIdx = (phaseIdx + 1) % phases.length;
+        // If we've completed a full cycle, reset arc
+        if (phaseIdx === 0) {
+          progressArc.style.transition = 'stroke-dashoffset 0.01s';
+          progressArc.style.strokeDashoffset = CIRCUMFERENCE;
+          setTimeout(() => { progressArc.style.transition = ''; }, 30);
+          segs.forEach(s => { s.style.opacity = '0.18'; });
+        }
+        startPhase();
+      }, 80);
+    }
+  }
+
+  function startPhase() {
+    startTime = null;
+    setLabel(phases[phaseIdx]);
+    setSegmentActive(phaseIdx);
+    raf = requestAnimationFrame(animate);
+  }
+
+  // Kick off
+  setLabel(phases[0]);
+  setSegmentActive(0);
+  raf = requestAnimationFrame(animate);
 })();
 
 // ── 1000 MESSAGES ──
@@ -743,39 +801,26 @@ const MESSAGES = [
   "You made it to this sentence. That's something. You have been here, reading, breathing, choosing to take care of yourself. Every sentence has been a small act of self-care. You are doing the work. You are doing it right now. I see you. Keep going.",
 ];
 
-// Seeded shuffle for good randomization
-function seededRNG(seed) {
-  let s = seed;
-  return () => {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    return (s >>> 0) / 0xffffffff;
-  };
-}
-
-function shuffleWithSeed(arr, seed) {
-  const rng = seededRNG(seed);
-  const a = [...arr.map((m, i) => ({ m, i }))];
+// Fisher-Yates shuffle using Math.random() — different every page load
+function shuffle(arr) {
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
+    const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
-// Shuffle once per day (seed = date)
-const todaySeed = parseInt(new Date().toISOString().slice(0, 10).replace(/-/g, ''));
-let order = shuffleWithSeed(MESSAGES, todaySeed);
+let order = shuffle(MESSAGES);
 let currentIndex = 0;
 
 const msgEl = document.getElementById('message');
-const numEl = document.getElementById('msg-num');
 
 function showMessage(idx) {
-  const entry = order[idx % order.length];
+  const text = order[idx % order.length];
   msgEl.classList.remove('visible');
   setTimeout(() => {
-    msgEl.textContent = entry.m;
-    numEl.textContent = `${entry.i + 1} / ${MESSAGES.length}`;
+    msgEl.textContent = text;
     msgEl.classList.add('visible');
   }, 700);
 }
