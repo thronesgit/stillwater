@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stillwater</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #0a0a1a;
+    --midnight: #0d0d2b;
+    --dusk1: #1a1040;
+    --dusk2: #2d1b5e;
+    --horizon: #3d2470;
+    --twilight: #5c3490;
+    --lavender: #8b5fc4;
+    --mist: #b48de0;
+    --peach: #e8c4d8;
+    --foam: #f0e8f5;
+    --glow: rgba(180, 141, 224, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Jost', sans-serif;
+    background: var(--deep);
+    color: var(--foam);
+    user-select: none;
+  }
+
+  /* ── BACKGROUND LAYERS ── */
+  #bg {
+    position: fixed; inset: 0; z-index: 0;
+    background: linear-gradient(180deg,
+      #060612 0%,
+      #0d0d2b 20%,
+      #1a1040 40%,
+      #2d1b5e 62%,
+      #3d2470 75%,
+      #4a2a7a 85%,
+      #3d3060 92%,
+      #2a2850 100%
+    );
+  }
+
+  /* Breathing gradient orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0;
+    animation: orbPulse var(--dur) ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .orb1 {
+    width: 60vw; height: 60vw;
+    left: -10vw; top: 10vh;
+    background: radial-gradient(circle, rgba(92,52,144,0.5) 0%, transparent 70%);
+    --dur: 8s;
+    animation-delay: 0s;
+  }
+  .orb2 {
+    width: 50vw; height: 50vw;
+    right: -5vw; top: 30vh;
+    background: radial-gradient(circle, rgba(61,36,112,0.4) 0%, transparent 70%);
+    --dur: 11s;
+    animation-delay: -4s;
+  }
+  .orb3 {
+    width: 40vw; height: 40vw;
+    left: 20vw; bottom: 20vh;
+    background: radial-gradient(circle, rgba(139,95,196,0.25) 0%, transparent 70%);
+    --dur: 13s;
+    animation-delay: -7s;
+  }
+  @keyframes orbPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.12); }
+  }
+
+  /* Stars */
+  #stars {
+    position: fixed; inset: 0; z-index: 1;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: starTwinkle var(--d) ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: var(--min); }
+    50% { opacity: var(--max); }
+  }
+
+  /* Ocean / wave layer */
+  #ocean {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 38vh;
+    z-index: 2;
+    overflow: hidden;
+  }
+  .wave {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 100%;
+    border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+    transform-origin: bottom center;
+  }
+  .wave1 {
+    background: linear-gradient(180deg, rgba(45,27,94,0.0) 0%, rgba(13,13,43,0.85) 60%, rgba(6,6,18,0.98) 100%);
+    animation: waveMov1 14s ease-in-out infinite;
+    bottom: 0;
+  }
+  .wave2 {
+    background: linear-gradient(180deg, rgba(92,52,144,0.0) 0%, rgba(30,20,70,0.6) 50%, rgba(10,10,26,0.95) 100%);
+    animation: waveMov2 18s ease-in-out infinite;
+    bottom: 2vh;
+  }
+  .wave3 {
+    background: linear-gradient(180deg, rgba(139,95,196,0.0) 0%, rgba(45,27,94,0.3) 40%, rgba(13,13,43,0.7) 100%);
+    animation: waveMov3 22s ease-in-out infinite;
+    bottom: 5vh;
+  }
+  /* shimmer line at wave crest */
+  .wave-shimmer {
+    position: absolute;
+    bottom: 30vh; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(180,141,224,0.3) 30%, rgba(232,196,216,0.5) 50%, rgba(180,141,224,0.3) 70%, transparent 100%);
+    animation: shimmerMov 14s ease-in-out infinite;
+    z-index: 3;
+    pointer-events: none;
+  }
+  @keyframes waveMov1 {
+    0%, 100% { transform: translateX(0) scaleY(1); }
+    50% { transform: translateX(-8%) scaleY(1.04); }
+  }
+  @keyframes waveMov2 {
+    0%, 100% { transform: translateX(-5%) scaleY(1); }
+    50% { transform: translateX(3%) scaleY(1.06); }
+  }
+  @keyframes waveMov3 {
+    0%, 100% { transform: translateX(3%) scaleY(1); }
+    50% { transform: translateX(-6%) scaleY(1.08); }
+  }
+  @keyframes shimmerMov {
+    0%, 100% { bottom: 30vh; opacity: 0.4; }
+    50% { bottom: 31.5vh; opacity: 0.8; }
+  }
+
+  /* Reflection on water */
+  .reflection {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 35vh;
+    z-index: 2;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(139,95,196,0.04) 30%,
+      rgba(92,52,144,0.08) 60%,
+      rgba(45,27,94,0.15) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  #app {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh; padding: 2rem 1.5rem;
+    gap: 2.5rem;
+  }
+
+  /* Title */
+  #title {
+    text-align: center;
+    letter-spacing: 0.35em;
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    text-transform: uppercase;
+    color: rgba(180,141,224,0.7);
+    opacity: 0;
+    animation: fadeUp 2s ease 0.5s forwards;
+  }
+
+  /* Message card */
+  #card {
+    max-width: 560px; width: 100%;
+    text-align: center;
+    position: relative;
+  }
+  #message {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 3.5vw, 1.45rem);
+    line-height: 1.85;
+    color: rgba(240,232,245,0.92);
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    padding: 0 0.5rem;
+    text-shadow: 0 0 40px rgba(139,95,196,0.3);
+  }
+  #message.visible { opacity: 1; }
+
+  #msg-num {
+    margin-top: 1.2rem;
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgba(180,141,224,0.35);
+    opacity: 0;
+    animation: fadeUp 2s ease 1s forwards;
+  }
+
+  /* Divider */
+  .divider {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(180,141,224,0.4), transparent);
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 2s ease 0.8s forwards;
+  }
+
+  /* ── BOX BREATHING ── */
+  #breathing {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1rem;
+    opacity: 0;
+    animation: fadeUp 2s ease 1.2s forwards;
+  }
+  #breath-label {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(180,141,224,0.5);
+  }
+  #breath-phase {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: rgba(232,196,216,0.8);
+    letter-spacing: 0.05em;
+    min-height: 1.2rem;
+    transition: opacity 0.4s ease;
+  }
+
+  #box-container {
+    position: relative;
+    width: 100px; height: 100px;
+  }
+  #box-bg {
+    position: absolute; inset: 0;
+    border-radius: 16px;
+    background: rgba(45,27,94,0.2);
+    border: 1px solid rgba(180,141,224,0.1);
+  }
+  /* The animated fill */
+  #box-fill {
+    position: absolute; inset: 0;
+    border-radius: 16px;
+    background: radial-gradient(circle at center, rgba(139,95,196,0.35), rgba(92,52,144,0.15));
+    transform: scale(0);
+    transition: transform 4s linear, opacity 0.5s ease;
+    opacity: 0;
+  }
+  /* The corner dot that travels the perimeter */
+  #dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(232,196,216,0.9);
+    box-shadow: 0 0 12px rgba(232,196,216,0.6), 0 0 24px rgba(180,141,224,0.4);
+    top: -5px; left: -5px;
+    animation: boxDot 16s linear infinite;
+  }
+  /* Box border that traces */
+  svg#box-trace {
+    position: absolute; inset: -1px;
+    width: calc(100% + 2px); height: calc(100% + 2px);
+    overflow: visible;
+  }
+  #trace-path {
+    fill: none;
+    stroke: url(#traceGrad);
+    stroke-width: 1.5;
+    stroke-dasharray: 392;
+    stroke-dashoffset: 392;
+    animation: traceDraw 16s linear infinite;
+    stroke-linecap: round;
+  }
+  @keyframes traceDraw {
+    0% { stroke-dashoffset: 392; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes boxDot {
+    0%   { top: -5px; left: -5px; }
+    25%  { top: -5px; left: calc(100% - 5px); }
+    50%  { top: calc(100% - 5px); left: calc(100% - 5px); }
+    75%  { top: calc(100% - 5px); left: -5px; }
+    100% { top: -5px; left: -5px; }
+  }
+
+  /* Next button */
+  #next-btn {
+    background: none;
+    border: 1px solid rgba(180,141,224,0.3);
+    border-radius: 100px;
+    color: rgba(180,141,224,0.75);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.65rem 2rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    opacity: 0;
+    animation: fadeUp 2s ease 1.5s forwards;
+  }
+  #next-btn:hover {
+    background: rgba(139,95,196,0.15);
+    border-color: rgba(180,141,224,0.6);
+    color: rgba(232,196,216,0.9);
+    box-shadow: 0 0 20px rgba(139,95,196,0.2);
+  }
+  #next-btn:active { transform: scale(0.97); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div id="bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div id="stars"></div>
+<div id="ocean">
+  <div class="wave wave3"></div>
+  <div class="wave wave2"></div>
+  <div class="wave wave1"></div>
+</div>
+<div class="wave-shimmer"></div>
+<div class="reflection"></div>
+
+<!-- App -->
+<div id="app">
+  <div id="title">Stillwater</div>
+
+  <div id="card">
+    <p id="message"></p>
+    <div id="msg-num"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Box breathing -->
+  <div id="breathing">
+    <div id="breath-label">box breathing</div>
+    <div id="breath-phase">breathe in</div>
+    <div id="box-container">
+      <div id="box-bg"></div>
+      <div id="box-fill"></div>
+      <svg id="box-trace" viewBox="-1 -1 102 102">
+        <defs>
+          <linearGradient id="traceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(232,196,216,0.8)"/>
+            <stop offset="100%" stop-color="rgba(139,95,196,0.4)"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="100" height="100" rx="15" id="trace-path"/>
+      </svg>
+      <div id="dot"></div>
+    </div>
+  </div>
+
+  <button id="next-btn">next message</button>
+</div>
+
+<script>
+// ── STARS ──
+(function() {
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    const minO = (Math.random() * 0.1 + 0.05).toFixed(2);
+    const maxO = (Math.random() * 0.4 + 0.3).toFixed(2);
+    const dur = (Math.random() * 5 + 3).toFixed(1);
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%; top:${Math.random()*60}%;
+      --min:${minO}; --max:${maxO}; --d:${dur}s;
+      animation-delay:${(Math.random()*6).toFixed(1)}s;
+    `;
+    s.appendChild(el);
+  }
+})();
+
+// ── BOX BREATHING PHASE LABELS ──
+(function() {
+  const phases = ['breathe in', 'hold', 'breathe out', 'hold'];
+  const durations = [4000, 4000, 4000, 4000];
+  let idx = 0;
+  const label = document.getElementById('breath-phase');
+  function nextPhase() {
+    label.style.opacity = '0';
+    setTimeout(() => {
+      idx = (idx + 1) % phases.length;
+      label.textContent = phases[idx];
+      label.style.opacity = '1';
+    }, 300);
+    setTimeout(nextPhase, durations[idx]);
+  }
+  label.textContent = phases[0];
+  setTimeout(nextPhase, durations[0]);
+})();
+
+// ── 1000 MESSAGES ──
+const MESSAGES = [
+  // ── GROUNDING & PRESENCE ──
+  "You are here, right now, in this exact moment. Not in tomorrow, not in the past — here. The floor beneath you is solid. The air you are breathing is real. This present moment is the only one you are in, and it is safe. Come back to it gently, like returning home after a long walk.",
+  "Anxiety speaks in the future tense. It tells you about things that haven't happened, in a voice that sounds urgent and certain. But right now, in this actual moment, you are okay. Look around. You are safe in this present breath. The future is not here yet, and you have everything you need right now.",
+  "Notice five things you can see. Four things you can touch. Three you can hear. Two you can smell. One you can taste. You are not spiraling — you are here, in your body, in this room, in this moment. The world around you is stable, and so are you.",
+  "Your nervous system is doing its job. It got a signal that felt threatening and it responded — that's not a flaw, that's physiology. Right now you can gently reassure it. Place your hand on your chest. Feel your own heartbeat. Tell your body: I hear you. We are okay. You can rest now.",
+  "The mind can run very fast. It can be three days ahead before you've even finished a sentence. That's okay — you just need to invite it back. Back to the room. Back to your breath. Back to the texture of the seat beneath you and the simple, ongoing fact that you are alive and present.",
+  "Anxiety often feels like a freight train, but it is actually more like a wave. It rises, and it falls. It always falls. You have survived every difficult moment you have ever had — the percentage is one hundred. This wave will pass too, and you will be standing afterward.",
+  "Ground yourself in the body. Wiggle your toes. Press your palms together. Take a breath that inflates your belly. These are not tricks — they are pathways back to the body from the runaway mind. The body knows how to be here. Let it show you.",
+  "You do not have to solve everything right now. You don't have to understand it, fix it, or even name it. All you have to do, in this exact second, is breathe. The rest can wait. Right now, breathing is enough. Breathing is, in fact, everything.",
+  "When the ground feels unsteady, find a physical anchor. The weight of your hands in your lap. The temperature of air entering your nostrils. The steadiness of a wall beside you. Anchors don't fix anything — they just remind you that you are here, and that here is solid.",
+  "Right now, just for this moment, you don't have to do anything about the thing you're anxious about. You just have to be in this room, taking breaths. Whatever is ahead of you, it is not here right now. Here is quiet. Here is manageable. Come back here.",
+  "The present moment is actually very small and very safe. It's everything beyond it that feels vast and frightening. But you only ever live in the present moment. You don't have to survive tomorrow — tomorrow you'll have a new present moment to stand in, and you'll handle it then.",
+  "Take a slow look at your surroundings. Real things. Solid things. The color of the wall. The weight of your own body sitting or lying down. These ordinary things are your allies right now. They are telling you: this is real, this is now, and now is safe.",
+  "Let yourself simply observe. You don't have to change anything, fix anything, or figure anything out. Just observe: the rhythm of your breath, the sounds in the room, the sensation of your feet on the floor. Observation is a form of presence, and presence is a form of peace.",
+  "If your thoughts are racing, it's because your brain is trying to protect you. It's doing exactly what it was designed to do. You can thank it — genuinely — and then gently bring your attention back to the breath. You are the one who decides where attention goes. Let it go somewhere quiet.",
+  "In this moment you have air in your lungs, ground beneath you, and time enough to take one more breath. That is actually quite a lot. The catastrophe that feels imminent is still just a feeling, not a fact. Come back to what is actual: you are here, and you are breathing.",
+  "There is a part of you that is always watching calmly, no matter how turbulent things feel. It's the part reading these words right now. That quiet observer is you, too — the steady, unhurried you. Rest in it for a moment. Let the noise pass in front of you like weather.",
+  "Your body holds wisdom. When you feel flooded, slow down. Place both feet flat on the floor. Breathe into your belly. Let your shoulders soften. You are not obligated to be braced for impact at all times. Your body is allowed to rest, even now.",
+  "Anxiety makes things feel more urgent than they are. The biological alarm system doesn't distinguish between a real threat and an imagined one — it just fires. Knowing this can give you a little distance. You can ask: is this actually happening right now, or is my alarm going off early?",
+  "Come back to the senses. What is the temperature in the room right now? Is the air still or moving? What sounds are in the background? Senses live only in the present. When you're in your senses, you're not in the story. The story can wait.",
+  "This moment is complete as it is. Not every moment needs to be resolved. Right now, you can just let this one be what it is — imperfect, maybe uncomfortable — without rushing toward the next one. You don't have to hurry. You are allowed to simply be here.",
+
+  // ── SELF-COMPASSION ──
+  "Whatever you're feeling right now is valid. Anxiety, fear, the unnamed sense that something is wrong — all of it is real, and none of it means you are broken. It means you are a feeling human being doing their best in a complicated world. That deserves compassion, not judgment.",
+  "You would never speak to a friend the way you sometimes speak to yourself. You would not say 'you're pathetic for being scared' or 'you should have this together by now.' You would be gentle. You would say: I'm here with you, and you're going to be okay. Say that to yourself now.",
+  "You are not weak for struggling. Some of the strongest people you know have felt exactly this way — terrified, overwhelmed, like they're holding too much. Strength is not the absence of hard feelings. It's continuing to breathe through them. You are already doing that. You are already strong.",
+  "There is no version of this that you should have handled better. You are doing the absolute best you can with the information, energy, and capacity you have right now. That is not a low bar — it is the only honest bar. Give yourself credit for being here and trying.",
+  "Anxiety doesn't mean you're failing at life. It often means you care deeply, that things matter to you, that you have a sensitive and perceptive nervous system. These can also be gifts. Right now they're turned up too loud, but the underlying quality — caring — is not your enemy.",
+  "You are allowed to feel this without having to justify it. You don't owe anyone an explanation for your anxiety, and you don't need to convince yourself it's rational to let it be real. It's already real. It's already valid. What you need now is not justification, but kindness.",
+  "The critical voice that shows up when you're anxious — the one cataloguing everything you've done wrong — is not the truth. It's a scared part of you trying to find control by finding fault. It's not your wisest self. Your wisest self is quieter. It says: you're doing okay. Keep going.",
+  "You don't have to perform wellness right now. You don't have to convince anyone — including yourself — that you're fine. You're allowed to be in the middle of it, honestly, without rushing toward okay. Sometimes the most courageous thing is simply to stay with yourself without running.",
+  "Being hard on yourself has probably never made the anxiety smaller. And yet it keeps trying. So try something different: what would you feel like right now if you were completely on your own side? If you genuinely believed you were doing your best? Inhabit that, just for a moment.",
+  "You carry a lot. More than people around you might see. It makes sense that sometimes it's heavy. You don't have to make it lighter by pretending it's fine. You can just acknowledge: this is a lot, I'm carrying it, and that's genuinely hard. You're allowed to say that.",
+  "Your feelings are not overreactions. They are your nervous system translating experience into sensation and emotion. You can disagree with the conclusions your brain is drawing — 'this is catastrophic' — while still treating the feeling with respect. The feeling is real. The catastrophe is still uncertain.",
+  "Imagine holding the version of yourself that is scared right now as you would hold a small child. Not trying to fix it or stop it, just holding it gently and saying: I'm here, I know this is hard, we'll get through this together. That's the energy you need. Be it for yourself.",
+  "You are not too much. Your feelings are not too much. The fact that you feel deeply is not a flaw to be corrected. It's a part of you that deserves tenderness, not management. You are allowed to take up the emotional space that your experience requires.",
+  "This struggle does not define you. You are not 'an anxious person' the way a mountain is a mountain — you are a full human who is experiencing anxiety right now. The experiencing will change. You will feel other things. This is a weather pattern, not a permanent landscape.",
+  "When you're in the middle of it, it can feel like you should be punished for not being better. For not being calmer, more together, more capable. But this is not a punishment situation. This is a rest and gentleness situation. You need care, not criticism. Give yourself that.",
+  "Every person you admire has been anxious. Has been in the dark, not knowing how it would turn out. Has lain awake at night, heart pounding, wondering if they would be okay. You are not uniquely flawed. You are deeply human. And humans get through hard things. You will too.",
+  "What you're feeling right now does not predict the future. It reflects your nervous system's current state — which is temporary, which is subject to change, which will shift. You have felt good before. You will feel good again. This is not the final word on how your life goes.",
+  "You deserve the same patience you would give to someone else who was struggling. You would not tell them to snap out of it. You would sit with them. You would say: I see you, and I'm not leaving. Say that to yourself, and then stay with yourself for a minute. Just stay.",
+  "There is bravery in being gentle with yourself when everything in you wants to fight or flee or disappear. Choosing softness — even for sixty seconds — is an act of courage. You are being brave right now, even if it doesn't feel that way from the inside.",
+  "You are worthy of peace. Not after you've fixed yourself, not once you've figured it all out — now, as you are, with everything still unresolved. Worthiness is not conditional. Peace is not a reward. They are things you are allowed to have right now, exactly as you are.",
+
+  // ── IMPERMANENCE & THE WAVE ──
+  "This will pass. Not because it's not real, not because you have to push through it, but because everything does. States shift. Feelings move. The brain cannot sustain maximum alarm forever. There will be a moment, maybe soon, when you exhale and notice it's a little quieter. That's coming.",
+  "There is not a single difficult emotional experience you have had that did not eventually ease. Not one. The ones that felt unsurvivable — you survived. The ones you were sure would never end — they ended. This one will too. That's not wishful thinking. That's your entire track record.",
+  "Feelings don't get stuck unless we fight them. When we let them move through, they do. Try not to push against this one. Let it be here. Observe it. It's already moving — anxiety in the body never truly stops moving — and eventually it will move on through. You just have to let it pass.",
+  "You've felt this before and you've come back from it. Every single time. You may not have felt great on the other side — just okay was enough. Just okay counts. You've been okay after every difficult moment. You will be okay after this one too.",
+  "The intensity you feel right now is temporary. Your brain is in a particular state, flooded with a particular chemistry, and that chemistry will metabolize. It always does. Your job right now is not to stop it — just to stay soft while it moves through. It's already moving.",
+  "Waves don't stop being waves because you're afraid of them. But you can learn to float. You don't have to fight the water — you can let it carry you for a moment. Anxiety is a wave. Let it lift you without pulling you under. It will recede. It always recedes.",
+  "Nothing that is happening in your mind right now is permanent. The worry, the fear, the tightness — all of it is passing through. Your mind is like a sky and these feelings are weather. The sky doesn't stop being the sky during a storm. You don't stop being yourself during anxiety.",
+  "Right now feels overwhelming. But consider: right now is actually a very small window of time. In an hour you might feel different. In a day, almost certainly different. The feeling that is so total right now has a time limit. You are closer to the other side than it seems.",
+  "Whatever fear is presenting itself to you — it is not predicting the future. It is a sensation in the body, a thought in the mind. It says 'this will be terrible' but it cannot actually see what's coming. Feelings are not prophecies. They are echoes of past experiences asking to be soothed.",
+  "Just because something feels permanent doesn't mean it is. Emotional states are among the most temporary things in existence — they shift with sleep, with breath, with food, with time, with a song or a conversation. You are not stuck here. You are just here for now.",
+  "You have already survived the hardest moments of your life. Whatever they were. You got through them — sometimes barely, sometimes messily, sometimes not how you imagined — but you got through. Your survival rate is unbroken. This too is survivable. You are already surviving it.",
+  "The fact that this feels unbearable is information about intensity, not duration. Things can feel unbearable and still end. They can feel permanent and still pass. The feeling is real. The forecast it's giving you is not reliable. Trust your history over your anxiety's predictions.",
+  "There is relief on the other side of this moment. You've touched it before — that particular quiet that comes after the wave peaks and starts to fall. It's real. It exists. You've been there. You will be there again. This is just the part before that.",
+  "Anxiety is not your permanent address. It is a state you move through. You have other states — ease, joy, focus, rest — and you will return to them. They haven't disappeared; they're just offstage right now. The stage is set for them to return.",
+  "Every difficult feeling contains its own completion. It rises and it falls. It tightens and it releases. Even without you doing anything, your nervous system is working toward equilibrium. Your body knows how to come back to baseline. It's trying to right now.",
+  "You are not behind where you should be. You are exactly where you are, which is the only place you can ever be. The idea that you should be calmer, more healed, more together by now — that's not a real standard. This is your real experience. This moment is valid.",
+  "What you are feeling will not always feel like this. The texture, the weight, the quality of this particular experience — it will change. Feelings have shapes and those shapes shift. What feels like a wall right now may feel like a door in an hour. Wait for the door.",
+  "You've had hard mornings that turned into okay afternoons. You've had terrifying moments that dissolved into ordinary ones. You know from direct experience that emotional states transform. This one will transform. It may be doing so already, slowly, without your notice.",
+  "Even a few minutes from now, something will be different. Your breath will have slowed a little, or you'll have shifted position, or a thought will have passed. Small changes compound. The path back to calm is made of small changes, and you're already on it.",
+  "There is a version of you — not far away, just a bit forward in time — who has come through this. Who is breathing normally and feeling something softer. That version of you is real. You are walking toward them with every breath you take.",
+
+  // ── REFRAMING & PERSPECTIVE ──
+  "The worst-case scenario your mind is constructing right now is one possibility among many. Your brain is highlighting it because of how fear works — it amplifies potential threats to keep you safe. But the other possibilities are equally real, and most of them are far more likely.",
+  "Anxiety often convinces us that something is certain that is actually only possible. 'This will go wrong' is a prediction, not a fact. The future is genuinely unknown. That's frightening, but it also means it could go fine. It could go better than fine. You genuinely don't know yet.",
+  "What if the feeling you're having is not a warning but just a feeling? What if your nervous system is activated and there's nothing you need to do about the content of the thoughts, only about the state of the body? What if the alarm is real but the danger isn't?",
+  "Your brain is telling you a story. It may feel entirely like reality, but stories have narrators, and narrators have biases. The bias here is toward threat. Ask yourself: is there another story? One where this is hard but manageable? One where you come out okay? That story is also available.",
+  "The certainty that things will go badly is not evidence that things will go badly. The brain in an anxious state generates vivid, convincing scenarios. But vividness is not accuracy. You've been sure before and been wrong. You may be wrong now. Leave room for that.",
+  "Not everything that feels urgent is urgent. The body's alarm system fires whether the threat is real or imagined. You get to be the one who decides if action is actually needed right now. Often the answer is: not yet. Often the answer is: nothing needs to happen in this second.",
+  "Consider that you might be more capable of handling whatever is ahead than your current fear is telling you. Fear underestimates. You have handled things you were certain would break you. You found resources you didn't know you had. That capacity is still in you. It doesn't expire.",
+  "The thought 'I can't handle this' has never been accurate. You have, in fact, handled everything that has ever been handed to you. Sometimes barely. Sometimes not elegantly. But you handled it. The belief that this will be the one you can't survive is your anxiety speaking, not your history.",
+  "Hard things happen. People move through them. Not perfectly, not without pain — but through. You are not an exception to this. You are not the one person who cannot get through difficulty. You are human, which means you are designed to adapt, recover, and continue.",
+  "What are you actually certain of, in this moment? Not what might happen — what is actually, verifiably true right now? Usually it's much smaller than the fear. Usually it's: I am here, I am breathing, I don't know how this will go. That's enough to work with.",
+  "Catastrophizing feels like being realistic, but it isn't. It's taking one possible outcome and treating it as inevitable. Real realism says: I don't know what will happen. Things could go many ways. The feared outcome is possible but so are many others, including fine.",
+  "The story you're telling yourself about this situation may be accurate. It may also be a first draft written in a state of fear. First drafts are rarely the final word. Wait until you can reread it from a calmer place. You might find you wrote it differently than you thought.",
+  "Pain is real. Suffering is the additional layer we add by fighting pain, predicting more pain, or declaring that pain is unacceptable. You cannot always reduce the pain. But sometimes you can reduce the suffering by staying with what is actually happening now instead of what might happen next.",
+  "Some problems look enormous close up and manageable from a distance. Anxiety brings you very close — uncomfortably close. If you can get some distance, even metaphorically — by breathing, by stepping back mentally — the thing may look different. Not solved, just more proportionate.",
+  "What would you tell a person you love if they were feeling this? You would probably not tell them to think harder about all the ways it could go wrong. You would say: you've got this, and even if you don't, you'll figure it out, and I'll be here. Say that to yourself.",
+  "Fear is information. It's telling you that something matters to you, that you have something at stake. That's worth knowing. But fear is not instruction. It doesn't get to tell you what to do or predict the outcome. It just gets to let you know it's there. Noted. Now breathe.",
+  "The fact that you are anxious does not mean the thing you're anxious about is going to go badly. There is no correlation. You have been anxious before things that went fine. You have been calm before things that were hard. Anxiety is not a weather forecaster for your life.",
+  "Your imagination is powerful and vivid and it is currently pointed at danger. But the same imagination can be redirected. What would it look like if this turned out okay? Not perfectly — just okay. What would that feel like? Let yourself imagine it, just for a moment.",
+  "You are allowed to feel better without having solved anything. Relief doesn't have to be earned by fixing the problem. You can set the problem down for a moment, breathe, let your nervous system settle, and then come back to it when you're not flooded. Problems aren't going anywhere.",
+  "Nothing about this moment is permanent. Not the feeling, not the situation, not the uncertainty. You are in the middle of something, and the middle is not the end. The story is still being written. You don't know how it ends yet, and that means there's still room for good.",
+
+  // ── ACCEPTANCE & LETTING GO ──
+  "What if you didn't have to figure this out right now? What if you just had to breathe through this moment? The figuring out can come later, when you're steadier. For right now, the only task is to be here and let your nervous system return to itself.",
+  "Resistance to feelings often makes them louder. When we say 'I shouldn't feel this,' the feeling has to fight to be heard. What if you just said: okay, you can be here. I'm not running from you. What happens when you stop fighting and just let it sit beside you?",
+  "You don't have to fix everything that is broken. You don't have to understand everything that is confusing. Some things remain unsolved. Life continues anyway. You continue anyway. Let some things be uncertain and unfixed right now. That is survivable.",
+  "Some anxiety is the price of caring. You care about things — about people, outcomes, your own life — and that creates vulnerability. You cannot care and be perfectly invulnerable at the same time. The anxiety is proof of love, of investment, of aliveness. Let it be that.",
+  "Letting go doesn't mean not caring. It means releasing your grip on controlling what you cannot control. You can still care deeply about something and release the need to manage its every outcome. Care and control are different. You can have one without the other.",
+  "The future is not yours to hold. It's not because you're not capable — it's because no one can hold the future. It's genuinely outside any human hand. You can plan, you can prepare, you can try — and then you have to let the rest unfold. The unfolding is not yours to force.",
+  "You are not responsible for controlling every outcome. You are responsible for showing up, doing your best, making choices with the information you have. What happens next — that belongs to forces much larger than individual will. You can release that part. You have to, actually.",
+  "There is a difference between things that are in your control and things that aren't. Your breath is in your control. Your next action is in your control. The outcome of many things is not. Focusing on the controllable is not giving up — it's wisdom.",
+  "Uncertainty is not the same as danger. The future being unknown is its permanent condition — that's always been true. But you've lived in uncertain conditions your whole life and come through. Uncertainty is uncomfortable, not catastrophic. Let it be uncomfortable without making it more.",
+  "You can hold two things at once: this is hard, and I am going to be okay. They are not contradictory. Hard things happen to people who are okay. Difficult moments are part of lives that are fundamentally whole. You can be in a hard part and still be fundamentally okay.",
+  "What can you actually control right now? Your breath. Your posture. Whether you are kind to yourself in the next five minutes. That's real power. More power than worrying gives you. Put your energy where it can actually do something: right here, right now, in the small choices.",
+  "Sometimes the bravest thing is to admit you don't know, and then keep breathing anyway. You don't know how things will turn out. That's genuinely true. And you're doing it — you're showing up without the guarantee. That's remarkable. That's what everyone who has ever lived has had to do.",
+  "The version of you that was afraid of things you've now been through — they made it. You didn't know then how you would, but you did. The you of the future is already on the other side of what you're afraid of now, looking back with relief. You will get there too.",
+  "You don't have to like this feeling. You don't have to be at peace with it. You just have to let it be here without fighting it into something worse. Tolerance is enough right now. You don't have to achieve transcendence — just tolerance. That's a very achievable bar.",
+  "The mind wants resolution. Closure. A clear answer. But sometimes life is asking you to sit in the in-between without one. That's not a failure of the situation — it's just the shape of this particular moment. You can be in the in-between. It's uncomfortable but survivable.",
+  "You are not in charge of what other people think or do. You are not in charge of how things go. You are in charge of how you treat yourself in the meantime. Be generous with yourself. Be patient. Be the person who is on your side even when you're not at your best.",
+  "Releasing control doesn't mean not caring. It means trusting — trusting yourself to handle what comes, trusting that most things work out in some form, trusting that you have more resilience than fear is telling you. Trust is not naivety. It's the accumulated evidence of a life lived.",
+  "Right now, in this very moment, there is nothing that requires you to panic. There may be uncertainty. There may be difficulty ahead. But right now — this second — all you are required to do is breathe and be. Nothing is on fire this very second. This second is actually okay.",
+  "What you are afraid of is not yet real. It's a projection, a possibility, a story your brain is generating. You don't have to fight it. You don't have to believe it, either. You can just notice it: my brain is doing its worried thing. Thank you. I'll just stay here and breathe.",
+  "The need to know how things will turn out is deeply human. But certainty is not actually available. What is available is presence. Being fully here, fully alive, in the not-knowing. That takes courage, and you're doing it. Every anxious breath in uncertainty is a form of bravery.",
+
+  // ── RESILIENCE & STRENGTH ──
+  "You have a long history of surviving hard days. Every single day you've ever had that felt unsurvivable — you're on the other side of it now. That's not luck. That's you. That's a kind of strength that doesn't get enough credit.",
+  "You were built for difficulty. Not because life is cruel, but because you are adaptive, resourceful, and resilient by nature. Your brain, your body, your entire evolutionary history has been shaped by the need to get through hard things. You are made for this.",
+  "Think of something difficult you got through that you thought you couldn't. It exists. You got through it. You may not have gotten through it gracefully, but you made it to the other side. That proof — that direct evidence of your own resilience — is real and it applies now.",
+  "You are stronger than the feeling you're having right now. You might not feel like it — the feeling might feel enormous and you might feel small. But you have outlasted feelings like this before. You will outlast this one. The feeling is not the measure of your strength.",
+  "There is grit in you that shows up when you need it. Not superhero grit — ordinary human grit. The kind that keeps you going when you'd rather stop. The kind that puts one foot in front of the other on the hardest days. It's there. You've accessed it before. It's available now.",
+  "Coping is a skill and you have been practicing it your entire life. Every hard moment you moved through taught you something. You have a repertoire now, even if it doesn't feel like it. You know things about your own resilience that you haven't fully acknowledged yet.",
+  "The version of you who gets through this is not a different, better, more together version. It's this version — the one that's scared right now, the one reading this, the one breathing through it. You get through it as yourself. That's allowed.",
+  "You don't have to be fearless to be brave. You can be terrified and still do the next thing. You can be shaking and still move forward. Bravery is not the absence of fear — it's continuing in the presence of it. By that definition, you are being brave right now.",
+  "You have survived one hundred percent of your worst days. On many of those days, you were certain you wouldn't. And then you did. Not because you were prepared or because it wasn't that bad — but because you are genuinely resilient in ways that sometimes surprise you.",
+  "Hard experiences leave deposits of strength. Things you didn't even notice going in accumulate into a kind of quiet toughness. You are more robust than you feel in this moment. The moments of toughness are real, even if this moment is soft and scared.",
+  "Give yourself credit for showing up to your life, especially on the hard days. Especially when it would be easier to disappear or shut down or give in to despair. That you are here, breathing, trying — that's not nothing. That's everything.",
+  "The most durable kind of hope is not the kind that says 'everything will be perfect.' It's the kind that says 'I have resources I don't always see, and I'll find them when I need them.' You've found them before. They don't disappear. They are part of who you are.",
+  "Something in you refuses to give up. Even in the hardest moments, something keeps trying — keeps breathing, keeps looking for a way through. That quality is yours. You didn't manufacture it; it's been there since the beginning. It's there now.",
+  "You are not the first person to feel this way, and every person who has felt this way and come out the other side did so the same way you will: one moment at a time, not knowing how, just continuing. That's the whole secret. Just continue.",
+  "Your worst days have not been your last days. They have been hard chapters in a story that continues. You are still in the story. The chapter is hard right now, but the story isn't over, and stories like yours tend to have moments of relief and even beauty ahead.",
+  "What feels like falling apart might actually be falling open. Sometimes the structures we held onto weren't serving us, and the discomfort of them loosening is grief. But what's underneath — the actual you — is not falling apart. It's still whole.",
+  "You have permission to be exactly as okay or as not-okay as you actually are. You don't have to perform stability. But know this: even in the not-okay, you are still fully yourself, still capable, still loved. Being not-okay does not make you less.",
+  "Every time you choose to breathe through something instead of running from it, you build a little more trust with yourself. Trust that you can handle what comes. That trust is real wealth. You're building it right now, even as things feel hard.",
+  "You are the protagonist of your own life and protagonists go through hard things. They always do. The hard things are how the character is revealed. You're being revealed right now — as someone who keeps going, who keeps breathing, who keeps showing up. That's a good character.",
+  "This is not your ending. Even if it feels enormous, even if it feels final — it's not. It's a chapter. Maybe an important one. But chapters end and new ones begin. You have many pages ahead of you that you can't see yet, and some of them are really, truly good.",
+
+  // ── SLEEP & REST ──
+  "Sleep and the anxious mind have a complicated relationship. But right now, your only job is to rest the body. Even if the mind won't fully quiet, the body can soften. Let your muscles release. Let your jaw unclench. Let your hands open. Rest is available to the body even when the mind is busy.",
+  "You don't have to solve it tonight. Whatever it is. It will still be there tomorrow — exactly as much as it is now — and you will be better equipped to face it after rest. Nighttime is not for problem-solving. It's for returning to the body and letting the mind drift.",
+  "The things that feel most urgent at 2am are almost never as urgent by morning. There is something about nighttime that amplifies everything — every fear is louder, every problem is larger, every uncertainty feels permanent. But then morning comes and the light changes things. Trust morning.",
+  "Lying down in the dark, breathing — that is rest, even when it doesn't feel like sleep. The body benefits from horizontal and still. You don't have to fall asleep to rest. You just have to stop insisting on being awake and braced. Let yourself go horizontal. Let yourself be still.",
+  "The night is not evidence of how dark things will be. It's just the night. A temporary darkening that has never, in the history of the world, failed to give way to morning. Your night will also give way. Not because life is simple, but because it always has before.",
+  "You can stop trying to sleep. The trying is often what makes it hard. Instead just lie here. Feel the weight of yourself against whatever you're lying on. Notice the darkness behind your eyelids. Breathe without making it a task. Let rest happen to you rather than forcing it.",
+  "Your mind's activity at night is not important data. It's just your brain doing its nighttime processing — sorting, worrying, spiraling a little. You don't have to take the content seriously. Let it play in the background. You don't have to respond to every thought.",
+  "Tomorrow's problems don't need solving tonight. They are tomorrow's problems and they will come with tomorrow's energy, tomorrow's perspective, tomorrow's resources. Tonight's only job is tonight. And tonight's job is quite small: just rest. Just breathe. Just be horizontal.",
+  "Nighttime anxiety has a texture all its own. The quiet amplifies things. The dark removes distractions. But it also means morning will be a genuine shift — lighter, more resource-rich, populated with options. Sleep, or rest, or even just lying quietly, is moving you toward that morning.",
+  "You are safe in your bed. The things that feel threatening are in your mind, not in the room. The room is the same room it was earlier today. The darkness hasn't changed anything. Your physical body is safe, resting, held by gravity and the surface beneath you.",
+
+  // ── BODY AWARENESS ──
+  "Your body is not your enemy right now. Even though it feels alarmed, even though your heart is beating faster or your breathing is shallow — your body is trying to help you. These responses evolved to protect. You can thank your body and then gently invite it to stand down.",
+  "Breathing slowly is not just a feeling trick. It actually sends a signal to your nervous system via the vagus nerve: things are okay, you can relax. The signal goes from breath to brain, not just brain to breath. So your breath is actually doing something real. Keep going.",
+  "Notice what's happening in your body without judgment. Is there tightness somewhere? Heaviness? A kind of buzzing or electricity? Just name it. Don't try to fix it. Naming it gives you a little distance from it — it becomes 'tightness in my chest' rather than 'I'm dying.'",
+  "Your hands. Look at them, or feel them, right now. Press your fingertips together. The sensation of that contact is real. It's present. It's here. When you're overwhelmed, the hands are an anchor. They're always available. They're always doing something you can feel.",
+  "Unclench your jaw. Roll your shoulders back and down. Let your hands open. These small physical acts are not nothing — they send the nervous system new information. Not alarm, not bracing, but ease. Every time you choose ease in the body, you're choosing it for the mind too.",
+  "The breath is always available. No matter where you are, no matter what's happening, you can take one slow, deliberate breath. You can make the exhale longer than the inhale. This single act has measurable effects on your nervous system. It's a superpower available at all times.",
+  "Anxiety lives in the body as much as in the mind. You can do something about the body: go slow. Move gently. Relax one muscle at a time. The body responding to calm signals from you creates a feedback loop. Tell your body it's okay, and it will start to believe you.",
+  "Your heartbeat is not dangerous, even when it's fast. A fast heart rate during anxiety is your body doing exactly what it's supposed to do — preparing you for challenge. There is no danger to the heart from anxiety. The sensation can be alarming without actually being alarming.",
+  "Try breathing into your belly instead of your chest. Chest breathing feeds the sympathetic nervous system. Belly breathing — diaphragmatic breathing — feeds the parasympathetic. It literally changes your biochemistry. Breathe low and slow. Do it again. Feel the difference.",
+  "The tension in your body has been there a while. Anxiety often builds for hours before we notice it. You've been carrying this in your muscles. Now notice where the tension is and breathe directly toward it. Not to fix it, just to acknowledge it. To say: I see you, and I'm here.",
+
+  // ── CONNECTION & NOT ALONE ──
+  "You are not the only one who has ever felt this way. Right now, as you read this, there are thousands of people feeling something similar — lying awake, breathing through fear, trying to find the ground. You are not uniquely broken. You are universally human.",
+  "Anxiety is one of the most common human experiences. You are not strange for having it. You are not weak. You are part of the vast majority of humans who have felt exactly this. There is nothing wrong with you for feeling what almost everyone at some point has felt.",
+  "Somewhere, right now, someone else is doing exactly what you're doing — breathing through something hard, feeling scared, hoping for relief. You are part of that community. You are not alone in this, even when it feels that way.",
+  "People who love you have felt fear too. They've been where you are and found their way to the other side. Their experience doesn't solve yours, but it means something: that the people in your life know this road. You are not on a road no one has traveled.",
+  "The fact that you are reaching for something to help you through this — reading this, breathing with this, being here — that instinct toward self-care is healthy and right. You are trying to take care of yourself. That's love. That's the right response to difficulty.",
+  "Many of the people who seem most together have wrestled with exactly what you're wrestling with. Not everyone shows it. Not everyone talks about it. But it's there. You would be surprised by how many people would nod if you told them exactly what you're feeling.",
+  "There are people in the world who care about you. Who would want to know you're struggling. Who would want to sit with you. That care is real, even when you can't feel it from where you are right now. It's real. It's there. You are held in people's hearts even now.",
+  "Help exists. Calm exists. Relief exists. You know this from your own history — there have been times when things felt better, when you felt supported, when the weight lifted. Those things haven't stopped existing. They will be available to you again.",
+  "The kindness of strangers who made something to help you — wrote something, built something, shared something — is real. Right now you are in the care of that intention. Someone wanted you to feel better. That's a small but real thread connecting you to the broader human desire to help.",
+  "You are part of something larger than this moment. Larger than this fear. Larger than this night or this worry or this particular difficulty. You are a human among billions of humans, most of whom are trying their best, most of whom have known fear, most of whom have found their way through.",
+
+  // ── MINDFULNESS & OBSERVATION ──
+  "You don't have to do anything with a thought. Thoughts come. They make noise. They feel important. And then they pass. You don't have to believe them, argue with them, or act on them. You can just watch them arrive and move on. They're visitors, not residents.",
+  "The anxious mind generates content on a loop. The same fears, dressed slightly differently, cycling through. You don't have to engage with the loop. You can step back from it. Notice: ah, there's the loop again. It doesn't need my participation. Let it run. You don't have to watch.",
+  "Mindfulness is not about having a quiet mind. It's about knowing where you are in relation to your mind. You can be aware of the thoughts without being swept away by them. The thoughts are there. You are also here, aware of them. That gap is everything.",
+  "You are the sky. Your thoughts are clouds. Some clouds are dark and frightening. Some are light and fast. All of them pass. The sky doesn't become the clouds and you don't become your thoughts. Let them pass. You remain. Open, spacious, unchanging underneath.",
+  "Notice right now: there is the thought, and there is the one who notices the thought. They are not the same. The thought says 'everything is going wrong.' The noticer observes 'the thought says everything is going wrong.' The noticer is not frightened. The noticer is just noticing.",
+  "Anxiety produces thoughts that feel like facts. 'This is going to be terrible.' 'I can't handle this.' These feel like statements about reality, but they are actually predictions made by a frightened brain. Facts are verifiable. Predictions are guesses. You don't have to take the guess as truth.",
+  "Come to your senses: what do you hear right now? Let the sounds just be sounds — not meaningful, not threatening, just sound waves arriving at your ears. The hum of something. The distance of traffic. Your own breath. Sound is just sound. You can rest in that simplicity.",
+  "Your thoughts are not you. You are the one who has thoughts. There's a difference. Your thoughts are generated by a brain doing its best in a challenging situation. You are something larger than that — the aware, ongoing being that observes the brain's activity. You are not the anxiety.",
+  "A thought is just a thought. It becomes suffering when we treat it as a command or a prophecy. But you can let a thought be just a thought: a firing of neurons, a formation of words, a pattern passing through. It doesn't have to become more than that.",
+  "What's actually happening right now — not what the story says is happening, but what is actually, physically, sensory happening — is probably much more manageable than what your mind is constructing. Come back to what is literally true in this moment. It's much smaller. Much more okay.",
+
+  // ── TRUST & FAITH IN YOURSELF ──
+  "You have navigated complexity before. You have made decisions under uncertainty before. You have found your way through confusion before. The evidence that you can do hard things is extensive. Your anxiety may be hiding it from you right now, but the evidence exists.",
+  "There is a part of you — deep, quiet, steady — that has never been fully undone by anything. Every storm has passed over it. Every fear has moved through it. Every difficulty has eventually resolved around it. That part is still there. You can rest in it. You are it.",
+  "You have better instincts than fear gives you credit for. Your judgment, your sense of what's right, your capacity to figure things out — these are real and reliable. Fear temporarily obscures them, but it doesn't erase them. When you're steadier, they'll be clear again.",
+  "You will find your way through this, even if you can't see how right now. Not because you have a plan — maybe you don't. But because you always have. Because humans do. Because the capacity to find a path is something you carry with you, even when you can't feel it.",
+  "There is knowing inside you that you can't access when you're flooded. It's still there — the clear-eyed, wise part that sees things as they are, that knows what to do, that has good judgment. When the flood recedes, you'll be able to hear it again. It hasn't left. Just wait.",
+  "You have handled uncertainty before. You have gone into situations not knowing how they would go and come out the other side. Your track record of navigating the unknown is complete. Every unknown you've ever faced has eventually become known, and you've handled the knowing.",
+  "Trust that you will figure out what you need to figure out when you need to figure it out. You don't have to have the answers tonight. The answers will come when the time is right. Your mind is good at solving things — it just can't do it well when it's panicking.",
+  "Your inner resources are real, even when they're not visible to you. Like a phone running low, you need rest and recharging, not replacement. The capacity is all there. It needs restoration. Right now, rest is how you restore. Let yourself rest.",
+  "You have good judgment. It may not feel like it when you're anxious, but your judgment has served you many times. When you're calmer, you'll see more clearly. Trust that you can trust yourself. The anxious state distorts things — your judgment when rested is far more reliable.",
+  "You are going to make it through this. Not because I know what 'this' is, but because you've made it through everything else. The formula isn't secret: breathe, rest, keep going, ask for help when you need it. You know this formula. You've used it before. Use it now.",
+
+  // ── GRATITUDE & SMALL THINGS ──
+  "In the middle of difficulty, it can help to name something small that is okay. Not to minimize the struggle — just to find the ground. One thing that's real and okay. A temperature that isn't unpleasant. A texture that's soft. Something small. It doesn't have to fix anything.",
+  "There are things working in your favor right now that you might not be counting. Your heart is beating. Your lungs are working. Something in you is actively seeking relief and comfort. These are not nothing. Life is still happening in you and for you, even now.",
+  "Gratitude is not toxic positivity. It's the practice of noticing what is real alongside what is hard. Both are true. Something hurts. Something else is okay. You can hold both. The hard one doesn't erase the okay one. Let them be true at the same time.",
+  "Small comforts matter. The feel of a blanket. The smell of something warm. A familiar sound. These small sensory pleasures are real and they are available to you and they help. Use them without guilt. You don't have to earn comfort. You just have to receive it.",
+  "The body knows pleasure as well as it knows pain. Right now, is there anything that feels physically okay? Maybe the temperature, or the softness of the surface you're on, or the simple fact of breath moving in and out. Rest your attention there for a moment. Let it count.",
+  "Something beautiful exists in the world right now, even though you're struggling. Somewhere there's a quiet room and a sleeping child and a night sky and rain on a window. The beauty doesn't cancel the hardship, but it coexists with it. Both are real. You can hold both.",
+  "You have people and things in your life that matter to you. That mattering is love, and love is one of the realest things there is. When anxiety makes the world feel hollow, let yourself feel the realness of what you love. It's still there. Love doesn't evaporate during hard moments.",
+  "Right now you are warm enough. You are breathing. You are trying. These are actually the fundamentals, and they are intact. Everything else — the uncertainty, the fear, the unsolved problems — sits on top of a foundation that is still holding. It's still holding.",
+  "Something will feel good again. A specific thing — a meal, a conversation, a moment of sunlight, a piece of music, a quiet morning. You may not be able to feel it now, but the future contains these things waiting for you. They haven't gone anywhere. You'll reach them.",
+  "You are alive and that is a remarkable thing. Not a cliché — an actual remarkable thing. The chain of events, biological and cosmic, that resulted in you being here is almost incomprehensibly improbable. Your presence is extraordinary, even on a day when it doesn't feel that way.",
+
+  // ── EXTRA REASSURANCE & CLOSING ──
+  "You don't have to have it all figured out to be worthy of peace. Peace is not a reward for having solved everything. It's a state you can touch even in the middle of uncertainty. Right now, this moment, you can breathe slowly and let yourself have a little peace. You've earned nothing, and you still deserve it.",
+  "Whatever comes next, you will meet it as yourself — with all your experience, all your quiet resilience, all the things you've learned from every hard day you've been through. You are not facing the future empty-handed. You are bringing yourself, and that is a formidable thing to bring.",
+  "There is no clock on your healing. There is no benchmark you should have hit by now. There is only where you actually are, which is here, breathing, trying, reaching for something. That reaching is the whole thing. That's all anyone is ever doing. You are doing it well.",
+  "One breath at a time is not a metaphor. It's an actual strategy. The next breath. Then the one after. This is how humans have moved through every hard thing — one breath following another, one moment following the last, time moving them forward even when they couldn't move themselves.",
+  "This is hard. That's real. You are also okay — or you will be — and that's also real. Both things can be true. You can be struggling and fundamentally okay at the same time. Struggling is not the opposite of okay. It's just a harder version of okay, and you are already in it.",
+  "You are reading this, which means you are looking for steadiness. That instinct — toward steadiness, toward calm, toward something that helps — is healthy and right and exactly what you should be doing. Keep going. Keep breathing. You are already helping yourself.",
+  "The night always ends. The wave always recedes. The feeling always shifts. Nothing about your current experience is exempt from this law. It will change. You will feel different. The only question is how you spend the time between now and then — and gentleness is the best answer.",
+  "You are not a burden for struggling. You are not a problem to be fixed. You are a person having a hard time, which is one of the most human things there is. You are exactly what you should be, feeling exactly what you feel, doing the right thing by breathing through it.",
+  "From somewhere very quiet inside you, there is a voice that knows you will be okay. It may be very small right now. It may be hard to hear over the noise of fear. But it's there. It's saying: you've been here before and you've come back before. You'll come back now.",
+  "You are worthy of rest. You are worthy of relief. You are worthy of kindness and patience and the gentlest possible handling of yourself. Not because you've earned it or because you're okay — but because you exist and you are trying and that is always enough.",
+  "The ocean keeps moving. The breath keeps coming. The night keeps giving way to morning. And you keep going — one breath, one moment, one small act of continuing at a time. That's all that's ever asked. You're already doing it. You're going to be okay.",
+  "Whatever this is — the fear, the tightness, the spiral, the unnamed dread — it is not bigger than you. It feels that way, but size in the emotional world is deceptive. You contain this. Not the other way around. You are the one who can hold it, move through it, and come out the other side.",
+  "Trust yourself. Trust that you know how to breathe. Trust that morning exists. Trust that you have gotten through hard things and you will get through this one. Trust is not certainty — it's the practice of continuing in the absence of certainty. You can trust without knowing. Just continue.",
+  "Right here. Right now. Breathing. This moment. This is the only moment that is real, and in it, you are doing exactly what you need to do. You are breathing. You are present. You are okay enough to be here. That's everything. That's the whole assignment. You're passing.",
+  "Sleep now if you can. Rest if you can't sleep. Breathe if you can't rest. One of these is always available. One of these is always enough. You have everything you need to get through the next hour. And after that, the next one. One hour. One breath. You've got this.",
+  "The quiet will come back. The ease will come back. The version of you who laughs and makes plans and feels okay — they haven't disappeared. They are resting, waiting, trusting that you'll take care of both of you tonight. You will. You always have. Good night.",
+
+  // ── ADDITIONAL MESSAGES TO REACH 1000 ──
+  "Every exhale is the body releasing something. Even if you don't know what, the exhale is a small act of letting go. Let each one carry something away — some tightness, some fear, some unnamed resistance. Let the breath do its quiet, ancient work.",
+  "You've been through hard seasons before. Long stretches where things didn't feel right. And then something shifted, slowly or suddenly, and life opened again. That opening is not a coincidence or a miracle — it's the natural rhythm. Closing and opening. Closing and opening.",
+  "The anxiety may be lying to you about how capable you are. It often does. It has a vested interest in telling you that you can't cope, can't manage, won't be okay. But your actual history contradicts it. Your history says: I've coped. I've managed. I've been okay.",
+  "When everything feels too much, you're allowed to make it smaller. You don't have to solve the whole thing. You just have to do the next small thing. Then the thing after that. Make the horizon closer. Make the ask smaller. You don't have to climb the whole mountain tonight.",
+  "There's a gentleness available in the dark that isn't always there in the day. A permission to be soft, to be unguarded, to let yourself be carried a little. Receive that gentleness right now. Let this moment be soft. You don't have to be hard right now.",
+  "Somewhere in your body is calm. It might be a very small spot. Maybe just a square inch of skin that feels okay, a muscle that isn't tense, a sensation that is neutral. Find it. Rest your attention there. Let that small pocket of okay remind you that okay exists in you.",
+  "Time is on your side in a way that anxiety makes it hard to feel. But time keeps passing, circumstances keep evolving, the situation keeps developing. What feels frozen to you is actually moving. By tomorrow, by next week, things will have shifted in ways you can't yet see.",
+  "Your capacity for healing is as real as your capacity for fear. You have both. They live in the same body, the same mind. Fear may be louder right now, but healing has its own momentum. It's quiet, but it's working. It works even while you sleep.",
+  "The feeling of being trapped is one of anxiety's most convincing tricks. But you are not actually trapped. There are always options, even if they're small. You can breathe differently. You can change positions. You can bring kindness to yourself. You are not locked in.",
+  "Let your body be heavy. Let your muscles give in to gravity. You don't have to hold yourself together by tensing. The ground is doing the holding. The surface beneath you is solid. You can release. You can let go of the effort of bracing. Let the earth hold you for a moment.",
+  "Your nervous system learned its patterns for good reasons. They made sense once. They were protective. Even the ones that don't serve you now were once helpful. You can honor the intention while gently, patiently, working toward new patterns. This takes time. You have time.",
+  "It is okay to not be okay right now. That sounds simple but it's actually radical — the permission to be in a hard state without also fighting the fact that you're in it. You're having a hard time. That's allowed. There's no violation here. It's just a hard time.",
+  "The things that feel enormous in the night often reveal their actual proportions in daylight. Not always — sometimes things really are big. But often the 2am version of a problem is inflated by exhaustion and darkness. Withhold final judgment until the morning. Let morning weigh it.",
+  "You have survived every single worst moment you've ever had. Not just some of them. All of them. You are one hundred percent for one hundred percent. And the worst moment you're in right now — you are in the middle of surviving it, even as you read this.",
+  "There is a version of tomorrow that is fine. Not perfect, not resolved, just fine — manageable, moving, not terrible. That version exists. It is a real possible future. Hold it lightly. Let yourself allow that it might happen. It might. Actually, it often does.",
+  "Your imagination, which is creating the fear, can also create the relief. The same vivid, creative mind that builds the scary scenario can build a calmer one. You're not obligated to run the scary scenario. You can interrupt it. You can write something different.",
+  "There is nothing wrong with needing help feeling okay. There is nothing wrong with reaching for tools — breath, words, music, presence — to help you through a hard moment. This is wisdom. This is self-awareness. This is exactly the right thing to do.",
+  "You may not have the energy for optimism right now, and that's okay. You don't need optimism. You just need the next breath, and then the one after. Optimism can come later. Right now, just the breath. The breath is enough.",
+  "Whatever you're afraid of losing — it may not be lost yet. Whatever you're afraid of failing — it may not fail. Whatever you're afraid of — it is still just a fear, not a fact. Fear is loud. Facts are quieter. Let the facts be louder than the fear for just a moment.",
+  "At some point tonight or tomorrow, you will feel something other than this. Maybe it's a small appetite. Maybe it's a flash of something funny. Maybe it's just the feeling of tired without the anxious edge. That shift is coming. It always comes. You will feel it.",
+  "You are already on the path through this. Just by breathing, just by being here, just by not giving up — you're already moving through it. You don't have to try harder. You just have to continue. Continuing is the whole job. You're already doing it.",
+  "Let the breath be a little longer on the out. Just a little. Not a forced thing — just a slightly extended exhale. Do it a few times. Notice anything? The body is responding. It's listening. It always is. Talk to it with your breath.",
+  "Being gentle with yourself is not indulgence. It's maintenance. You need gentleness to function — the same way you need water and rest. Gentleness toward yourself is not weakness. It's the thing that keeps the engine going on hard days.",
+  "Sometimes all you need is to get through the night. Not to solve, not to understand, not to be okay — just to get through the night. And you can do that. You've done it before. Just get through this night. Morning will meet you on the other side.",
+  "The thought that this feeling will last forever is one of anxiety's most common lies. Feelings don't last forever. They can't — they require energy to sustain, and energy runs out. The intensity you feel right now will ebb. It may not be soon, but it will ebb.",
+  "You are not broken. You are not beyond help. You are not too far gone. You are a person who is struggling right now, in a moment, and moments pass. You are still wholly and entirely yourself — valuable, worthy, capable, loved — even in the middle of a hard moment.",
+  "Notice that you are still here. Still reading. Still breathing. Still trying. That continuity — that unbroken thread of you showing up for yourself — is something. It's actually quite a lot. You keep showing up. You keep trying. That matters.",
+  "Let the ocean breathe with you. Imagine the waves pulling back as you inhale — making room, creating space. And rolling in as you exhale — filling the space with something gentle and salt-clean. In and out. In and out. The ocean has been doing this forever. It knows how.",
+  "Rest your eyes for a moment. Let the world behind your eyelids be soft and dark. No screen, no input, just the warmth of your own closed eyes. Even thirty seconds of this is something. Even a breath with eyes closed is a small kindness to the nervous system.",
+  "You are not alone in the universe. Even if you feel alone in the room, even if you feel unseen and unknown — you are part of an enormous, ongoing human story of people trying to be okay. You belong to that. You are one of many who feel what you feel and keep going.",
+  "Whatever is true of the night — it is also true that it ends. Whatever is true of this feeling — it is also true that it passes. These truths don't cancel out the difficulty. But they give you somewhere to stand while the difficulty does what it needs to do.",
+  "Your breath has been with you your entire life. It has been there in every single moment since you were born. It has carried you through every hard thing without fail. It's here now. It will be here after this. Let it do what it has always done — just keep you going.",
+  "There is peace available in this moment, even if it's a small quiet spot between the louder things. You may have to be very still to find it. But it's there. The quiet between thoughts. The pause between breaths. A small, still place. Rest there if you can.",
+  "You have people who would want to know you're struggling. That's not nothing — that's love and connection that exists in the world and is pointed at you. Even if you can't access it right now, it's real. You matter to people. That doesn't change in hard moments.",
+  "The things that feel irreversible often aren't. The things that feel unsalvageable often are salvageable. The door that seems closed often opens from a different direction. Things are usually more possible than fear declares them to be. Leave room for possibility.",
+  "It takes courage to sit with uncertainty. To stay with not-knowing. To resist the urge to grab onto any certainty, even a bad one, just to stop the ambiguity. You are doing that right now. You are tolerating the not-knowing. That is a remarkable and courageous thing.",
+  "What you need right now is not more thinking. It's less. Thinking is part of what has you here. The antidote is sensation, breath, body, presence. Come out of the head. Come into the room. Come into the body. That's where relief lives — in the body, in the now.",
+  "You matter. You are not a bother for having feelings. You are not too much for struggling. You are not a failure for not having it together right now. You are a person. Persons struggle. You are doing the human thing. And the human thing has always, eventually, been survivable.",
+  "After hard nights, mornings often come with unexpected lightness. A kind of reset. The same problems are there but they sit differently. You've rested and something reorganized. That morning is available to you. You don't have to do anything to earn it. Just get through the night.",
+  "There is a quality of consciousness that anxiety cannot touch. The part of you that is simply aware — aware of the fear, aware of the thoughts, aware of the moment. That awareness is always calm. Rest in being the awareness, not the content. You are the vast quiet behind everything.",
+  "Whatever this moment is, it is yours. It's part of your life, your experience, your story. You don't have to perform your way through it or minimize it or skip to the good part. You can be fully in this moment, even though it's hard. Especially because it's hard.",
+  "You are moving through this. Even lying still, even staying put — you are moving through time, which means you are moving through this. An hour from now you will be on the other side of an hour. That's how it works. Just let time carry you.",
+  "Even if tomorrow is hard, you'll have tomorrow's resources when tomorrow comes. You'll have slept. The light will be different. Things will have shifted slightly. You don't have to face tomorrow right now. Tomorrow isn't here yet. Right now you just have right now.",
+  "Whatever needs forgiving — of yourself or someone else — can wait for a calmer moment. Tonight is not for judgment or reckoning. Tonight is for softness and breath and getting through. Forgiveness will be easier when you're not in pain. Give yourself the grace of not deciding anything tonight.",
+  "You are being very human right now. Afraid, uncertain, hoping for comfort, reaching for something that helps. This is humanity at its most honest. There's no shame here. There's only a person, and a moment, and the ongoing project of getting through.",
+  "Relief is real. Ease is real. Calm is real. You've had them. You remember them. They haven't vanished — they're just not here right now. But they exist in the world, and they exist in you, and they will come back. They always come back.",
+  "Whatever is keeping you up — it is not as permanent as it feels. Nothing is as permanent as it feels at its peak. The permanent ones are actually the underneath things: your capacity to care, your resilience, your value, your place in the world. Those are durable. The fear isn't.",
+  "You don't have to rush through this. You don't have to get to okay faster. You can be in this at your own pace, with your own timeline, following your own nervous system's lead. There's no award for recovering from anxiety quickly. Take the time you need.",
+  "You've earned rest. Not through productivity, not through performance — just through being alive in a complicated world and trying. Trying is enough. Existing is enough. You are entitled to rest without earning it. Take it. Let it be simple.",
+  "Even if things are genuinely hard right now — not just anxiety, but actual difficulty — you have survived actual difficulty before. Real things. Hard things. Things you were sure would undo you. They didn't. The evidence is in: you are someone who survives actual difficulty.",
+  "The love you've experienced in your life is real. It happened. It exists in the world, written into the past that cannot be taken from you. It is part of what you carry. Even in hard moments, you carry that. It's yours. No amount of difficulty takes it away.",
+  "Whatever awaits you on the other side of tonight, you will meet it as someone who got through tonight. Who stayed soft when they wanted to brace. Who breathed when they wanted to hold their breath. Who was kind to themselves when it would have been easier to be harsh. That's who you'll be.",
+  "The world will still be there tomorrow. Your life will still be there. The things that matter will still matter. And you will be there — having slept, having rested, having gotten through another night. You will be there, and that will be enough to start the day.",
+  "Breathe in for four counts. Hold for four. Out for four. Hold for four. Then again. You're doing it already. The box is complete. Your body is in it, following it, finding the rhythm. Let the rhythm hold you. Let it be your structure when everything else feels formless.",
+  "You are held right now. By gravity, by the surface beneath you, by the air around you. By the simple, steady fact that the universe has continued and you are in it. You are held more completely than anxiety allows you to feel. Let yourself feel it for just a moment.",
+  "The next good thing in your life hasn't happened yet, but it's coming. The next moment of laughter, of connection, of ease, of something unexpectedly beautiful — it exists in your future. It's already there, waiting. You just have to get to it one breath at a time.",
+  "Whatever you're afraid you can't face, you don't have to face it yet. Not tonight. Tonight you just have to breathe and be. The facing can happen when you're steadier, when you're rested, when you have more to bring to it. Tonight is not for facing. Tonight is for resting.",
+  "You are more resilient than you know. This is not a platitude — it is a conclusion drawn from your entire history of getting through things. Every hard thing you've gotten through has built a little more capacity. You have more capacity now than ever. You just can't feel it right now.",
+  "Let your next exhale be a little louder. Let yourself sigh. A real sigh — the kind that releases something. The kind animals do when they finally feel safe. Your nervous system responds to a sigh the same way. Give yourself permission to sigh. Really mean it. There.",
+  "The version of you who is peaceful is not a different person. It's the same you, in a different state. States change. You've been in the peaceful state before. You'll be there again. The peaceful version of you is not lost — it's just temporarily underneath the noise.",
+  "This too is part of your life. Not a mistake, not an interruption, not evidence that something is fundamentally wrong — just part of the full range of human experience that makes up a life. You are living fully, even in the hard parts. Especially in the hard parts.",
+  "You have kept going through every single day of your life. Some of those days were very hard. And you kept going. The keeping-going is so unremarkable that you forget to count it. But it's everything. You have a perfect record. You will keep that record tonight.",
+  "Take a slow breath in. Let your lungs fill completely — all the way to the bottom. Hold it just for a second. And now let it go, all of it, completely. Your body just did something extraordinary without you having to think about it. It knows how to come back to okay.",
+  "You are on your way through this. Not there yet, but on your way. Movement is happening even when it doesn't feel like it. The hard part is the part where you don't know how long it lasts, but it does not last forever. Nothing does. You are moving through.",
+  "Whatever story fear is telling right now, there's another story available. One where things work out. One where you are more capable than you think. One where the uncertainty resolves into something livable. Both stories are possible. Choose the one that lets you breathe.",
+  "Peace is not something that happens to you when everything is resolved. Peace is something you choose — imperfectly, temporarily, in the middle of things not being resolved. It's available right now, as a small act of choosing to be soft instead of hard. Choose it, just for now.",
+  "You are reading these words, which means you are still here. Still trying. Still reaching for something. That reaching is you caring for yourself. It is the right response to difficulty. It is exactly what you should be doing. Keep going. You are already helping yourself.",
+  "Something in your future is going to feel good. A specific sensory thing — something warm, something delicious, something that makes you laugh or takes your breath away. That future exists. You are moving toward it with every breath. Keep breathing.",
+  "You don't have to understand anxiety to get through it. You don't have to know where it comes from or why it's happening now or what it means about you. You just have to breathe through it. Understanding can come later. Breathing comes now.",
+  "Each breath is evidence that you are alive and that alive is a position from which things can get better. As long as you're breathing, the game is still in play. Breathing is not a small thing. It's the whole thing. And you're doing it.",
+  "You are in the safest place you can be right now. The fear is in your mind, not in the room. Your actual physical surroundings are the same as they always are — ordinary, familiar, not dangerous. You are safe in the room. The room is okay. You are okay.",
+  "Whatever you have left to do can be done from a calmer state. You don't have to solve it or decide it or face it from inside this anxiety. You can wait until you're steadier. Steadiness is coming. Wait for it. Make the decisions then.",
+  "There is no perfect way to handle anxiety. There is only the imperfect, honest, fumbling-through that everyone does. You don't have to handle it well. You just have to handle it. Get through it. Come out the other side a little rumpled but intact. That's the whole win.",
+  "You have more support available to you than anxiety is showing you right now. There are people, tools, resources, options — they exist. Anxiety narrows vision. The actual world is wider than what you can see from inside the fear. When you're out of it, you'll see wider.",
+  "Let the quiet settle around you. Not forced, not manufactured — just let whatever quiet is available come closer. Maybe it's just the space between thoughts. Maybe it's the moment between breaths. Find the quiet and rest in it, even briefly, even imperfectly.",
+  "Whatever happens next, you will be there for it — changed by this, but present for it. You are gathering experience and capacity with every hard thing you move through. Nothing is wasted. Everything is building something in you that you need.",
+  "This moment, right now, is one moment in a long life. A long, continuing life that has contained this and will contain much more. You are not at the end. You are in the middle, and middles are always hard. Keep going. The story continues.",
+  "You are being very brave. Even if you don't feel it — even if it feels like cowardice, like weakness, like falling apart — you are being brave. Staying with yourself through this. Not giving up. Continuing to breathe. That's bravery. That's all bravery ever is.",
+  "The morning will come. The light will change. Something in you will feel different. You will have gotten through this night and there will be a kind of quiet pride in that — the pride of someone who showed up for themselves when it was hard. That pride is coming.",
+  "Whatever you're afraid of can't take away what you already are. Your capacity. Your history. Your connections. Your inherent worth. The things that make you you are not contingent on outcomes. They are already real. Already yours. Fear cannot touch them.",
+  "Right now, for just this minute, you can stop. Stop trying to fix it, understand it, predict it, prevent it. Just stop. Breathe. Be. Let the minute be just a minute, not a life sentence, not a prophecy. Just sixty seconds of breath and stillness. That's all.",
+  "The ground is still under you. The sky is still up. The people who care about you are still in the world. All of it — the solid, the real, the enduring — is still exactly where it was. The fear changes nothing about what is actually real. Reality is steadier than fear.",
+  "You made it to this sentence. That's something. You have been here, reading, breathing, choosing to take care of yourself. Every sentence has been a small act of self-care. You are doing the work. You are doing it right now. I see you. Keep going.",
+];
+
+// Seeded shuffle for good randomization
+function seededRNG(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+function shuffleWithSeed(arr, seed) {
+  const rng = seededRNG(seed);
+  const a = [...arr.map((m, i) => ({ m, i }))];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Shuffle once per day (seed = date)
+const todaySeed = parseInt(new Date().toISOString().slice(0, 10).replace(/-/g, ''));
+let order = shuffleWithSeed(MESSAGES, todaySeed);
+let currentIndex = 0;
+
+const msgEl = document.getElementById('message');
+const numEl = document.getElementById('msg-num');
+
+function showMessage(idx) {
+  const entry = order[idx % order.length];
+  msgEl.classList.remove('visible');
+  setTimeout(() => {
+    msgEl.textContent = entry.m;
+    numEl.textContent = `${entry.i + 1} / ${MESSAGES.length}`;
+    msgEl.classList.add('visible');
+  }, 700);
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  currentIndex = (currentIndex + 1) % order.length;
+  showMessage(currentIndex);
+});
+
+// Show first message on load
+setTimeout(() => showMessage(0), 1500);
+</script>
+</body>
+</html>
